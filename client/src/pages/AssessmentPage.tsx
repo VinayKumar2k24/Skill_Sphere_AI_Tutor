@@ -86,6 +86,17 @@ export default function AssessmentPage() {
     navigate('/courses');
   };
 
+  const handleRetakeQuiz = () => {
+    // Reset quiz state to generate a new quiz
+    setQuizData(null);
+    setShowResults(false);
+    setQuizResults(null);
+    setCurrentQuestion(0);
+    setUserAnswers([]);
+    // Generate new quiz
+    generateQuizMutation.mutate();
+  };
+
   if (generateQuizMutation.isPending) {
     return (
       <DashboardLayout userName="User">
@@ -131,6 +142,7 @@ export default function AssessmentPage() {
           domain={quizData.domain}
           results={quizResults.results || []}
           onViewCourses={handleViewCourses}
+          onRetakeQuiz={handleRetakeQuiz}
         />
       </DashboardLayout>
     );

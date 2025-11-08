@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, XCircle, TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle2, XCircle, TrendingUp, ChevronDown, ChevronUp, Brain } from "lucide-react";
 import { useState } from "react";
 
 interface QuestionResult {
@@ -20,6 +20,7 @@ interface QuizResultsProps {
   results?: QuestionResult[];
   topicBreakdown?: { topic: string; correct: number; total: number }[];
   onViewCourses: () => void;
+  onRetakeQuiz?: () => void;
 }
 
 export default function QuizResults({
@@ -29,7 +30,8 @@ export default function QuizResults({
   domain,
   results = [],
   topicBreakdown,
-  onViewCourses
+  onViewCourses,
+  onRetakeQuiz
 }: QuizResultsProps) {
   const [showDetails, setShowDetails] = useState(false);
   const percentage = Math.round((score / totalQuestions) * 100);
@@ -73,10 +75,25 @@ export default function QuizResults({
         </p>
 
         <div className="flex flex-wrap gap-3 justify-center">
-          <Button size="lg" onClick={onViewCourses} data-testid="button-view-courses">
+          <Button size="lg" onClick={onViewCourses} data-testid="button-view-courses" className="glow-primary">
             <TrendingUp className="mr-2 h-5 w-5" />
             View Recommended Courses
           </Button>
+          
+          {/* Show retake button for Beginner and Intermediate levels to help AI better assess skills */}
+          {onRetakeQuiz && (skillLevel === "Beginner" || skillLevel === "Intermediate") && (
+            <Button 
+              size="lg" 
+              variant="default"
+              onClick={onRetakeQuiz}
+              data-testid="button-retake-quiz"
+              className="glow-secondary"
+            >
+              <Brain className="mr-2 h-5 w-5" />
+              Retake Quiz
+            </Button>
+          )}
+          
           {results && results.length > 0 && (
             <Button 
               size="lg" 
@@ -98,6 +115,13 @@ export default function QuizResults({
             </Button>
           )}
         </div>
+        
+        {/* Helpful message for Beginner/Intermediate users */}
+        {(skillLevel === "Beginner" || skillLevel === "Intermediate") && (
+          <p className="text-sm text-muted-foreground mt-4 max-w-md mx-auto">
+            Want to improve your score? Retake the quiz to help our AI better understand your skills and recommend more suitable courses.
+          </p>
+        )}
       </Card>
 
       {showDetails && results && results.length > 0 && (

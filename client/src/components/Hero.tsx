@@ -9,22 +9,24 @@ export default function Hero() {
   };
 
   return (
-    <div className="relative overflow-hidden bg-background">
+    <div className="relative overflow-hidden bg-black">
       <div className="absolute inset-0">
         <img 
           src={heroImage} 
           alt="Students learning with technology" 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover opacity-40"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/98 via-background/92 to-background/80 backdrop-blur-[2px]" />
+        {/* Strong dark wash for better text contrast */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/85 to-black/75" />
+        <div className="absolute inset-0 bg-black/30" />
       </div>
       
       <div className="relative max-w-7xl mx-auto px-4 py-24 sm:py-32">
         <div className="max-w-2xl">
-          <h1 className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl text-foreground mb-6">
-            Master New Skills with AI-Powered Learning
+          <h1 className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl text-white mb-6 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] leading-tight">
+            Master New Skills with <span className="text-primary neon-glow">AI-Powered</span> Learning
           </h1>
-          <p className="text-lg sm:text-xl text-muted-foreground mb-8 leading-relaxed">
+          <p className="text-lg sm:text-xl text-gray-200 mb-8 leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
             Take personalized skill assessments, receive intelligent course recommendations, and track your progress with an AI mentor by your side.
           </p>
           

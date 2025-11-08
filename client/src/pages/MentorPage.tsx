@@ -103,25 +103,25 @@ export default function MentorPage() {
           </p>
         </div>
 
-        {/* Proactive Recommendations */}
+        {/* Proactive Recommendations - Larger and more readable */}
         {recommendations.length > 0 && (
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-6">
             {recommendations.map((rec, index) => (
-              <Card key={index} className="p-4 hover-elevate" data-testid={`recommendation-${index}`}>
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
-                    <Target className="h-5 w-5 text-primary" />
+              <Card key={index} className="glass-card p-6 neon-border hover:border-primary/60 transition-all" data-testid={`recommendation-${index}`}>
+                <div className="flex items-start gap-4">
+                  <div className="p-3 rounded-lg bg-primary/10 flex-shrink-0">
+                    <Target className="h-6 w-6 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-sm">{rec.title}</h3>
-                      <Badge variant="outline" className="text-xs">{rec.type}</Badge>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-lg text-foreground">{rec.title}</h3>
+                      <Badge variant="outline" className="text-sm bg-primary/10 text-primary border-primary/30">{rec.type}</Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-3">{rec.description}</p>
+                    <p className="text-base text-foreground/80 mb-4 leading-relaxed">{rec.description}</p>
                     <Link href={rec.link}>
-                      <Button size="sm" variant="default" className="w-full" data-testid={`button-${rec.action.toLowerCase().replace(/\s+/g, '-')}`}>
+                      <Button size="default" variant="default" className="w-full glow-primary" data-testid={`button-${rec.action.toLowerCase().replace(/\s+/g, '-')}`}>
                         {rec.action}
-                        <ArrowRight className="h-3 w-3 ml-2" />
+                        <ArrowRight className="h-4 w-4 ml-2" />
                       </Button>
                     </Link>
                   </div>
@@ -132,14 +132,14 @@ export default function MentorPage() {
         )}
 
         <Card className={`flex flex-col ${recommendations.length > 0 ? 'h-[calc(100vh-26rem)]' : 'h-[calc(100vh-16rem)]'}`}>
-          <div className="p-4 border-b bg-card/50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-primary/10">
-                <Sparkles className="h-5 w-5 text-primary" />
+          <div className="p-6 border-b bg-card/50 backdrop-blur-sm">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-full bg-primary/10">
+                <Sparkles className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold">Your Personal AI Mentor</h3>
-                <p className="text-sm text-muted-foreground">Always here to help</p>
+                <h3 className="font-semibold text-lg text-foreground">Your Personal AI Mentor</h3>
+                <p className="text-base text-muted-foreground">Always here to help you learn and grow</p>
               </div>
             </div>
           </div>
@@ -152,23 +152,23 @@ export default function MentorPage() {
                   className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
                   data-testid={`message-${message.role}-${message.id}`}
                 >
-                  <Avatar className="h-8 w-8 flex-shrink-0">
-                    <AvatarFallback className={message.role === 'assistant' ? 'bg-primary text-primary-foreground' : 'bg-muted'}>
-                      {message.role === 'assistant' ? <Bot className="h-4 w-4" /> : <User className="h-4 w-4" />}
+                  <Avatar className="h-10 w-10 flex-shrink-0">
+                    <AvatarFallback className={message.role === 'assistant' ? 'bg-primary text-primary-foreground' : 'bg-accent'}>
+                      {message.role === 'assistant' ? <Bot className="h-5 w-5" /> : <User className="h-5 w-5" />}
                     </AvatarFallback>
                   </Avatar>
                   
-                  <div className={`flex-1 max-w-[80%] ${message.role === 'user' ? 'text-right' : ''}`}>
+                  <div className={`flex-1 max-w-[85%] ${message.role === 'user' ? 'text-right' : ''}`}>
                     <div
-                      className={`inline-block p-4 rounded-lg ${
+                      className={`inline-block px-5 py-4 rounded-2xl ${
                         message.role === 'user'
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted'
+                          ? 'bg-primary text-primary-foreground neon-glow'
+                          : 'glass-card border border-border/50'
                       }`}
                     >
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                      <p className="text-base leading-relaxed whitespace-pre-wrap">{message.content}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1 px-2">
+                    <p className="text-sm text-muted-foreground mt-2 px-2">
                       {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
@@ -177,14 +177,14 @@ export default function MentorPage() {
 
               {chatMutation.isPending && (
                 <div className="flex gap-3">
-                  <Avatar className="h-8 w-8">
+                  <Avatar className="h-10 w-10">
                     <AvatarFallback className="bg-primary text-primary-foreground">
-                      <Bot className="h-4 w-4" />
+                      <Bot className="h-5 w-5" />
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <div className="inline-block p-4 rounded-lg bg-muted">
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                    <div className="inline-block px-5 py-4 rounded-2xl glass-card border border-border/50">
+                      <Loader2 className="h-5 w-5 animate-spin text-primary" />
                     </div>
                   </div>
                 </div>
@@ -192,23 +192,23 @@ export default function MentorPage() {
             </div>
           </ScrollArea>
 
-          <form onSubmit={handleSubmit} className="p-4 border-t bg-card/50">
-            <div className="flex gap-2">
+          <form onSubmit={handleSubmit} className="p-6 border-t bg-card/50 backdrop-blur-sm">
+            <div className="flex gap-3">
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask anything about your learning journey..."
                 disabled={chatMutation.isPending}
-                className="flex-1"
+                className="flex-1 h-12 text-base px-4"
                 data-testid="input-chat-message"
               />
               <Button
                 type="submit"
                 disabled={!input.trim() || chatMutation.isPending}
-                size="icon"
+                className="h-12 px-6 glow-primary"
                 data-testid="button-send-message"
               >
-                <Send className="h-4 w-4" />
+                <Send className="h-5 w-5" />
               </Button>
             </div>
           </form>

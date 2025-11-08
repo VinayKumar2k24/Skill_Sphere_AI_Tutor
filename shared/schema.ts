@@ -44,6 +44,12 @@ export const enrolledCourses = pgTable("enrolled_courses", {
   isPaid: boolean("is_paid").default(false),
   progress: integer("progress").default(0),
   completed: boolean("completed").default(false),
+  // Additional course details for proper display
+  description: text("description"),
+  skillLevel: text("skill_level"),
+  duration: text("duration"),
+  rating: integer("rating"), // Store as integer (e.g., 46 for 4.6) to avoid decimal issues
+  price: integer("price"), // Store as integer (cents)
   enrolledAt: timestamp("enrolled_at").defaultNow(),
 });
 

@@ -76,11 +76,18 @@ export default function CoursesPage() {
         url: course.url,
         domain: course.domain,
         isPaid: !course.isFree,
+        // Include all course details for proper display after enrollment
+        description: course.description,
+        skillLevel: course.skillLevel,
+        duration: course.duration,
+        rating: course.rating,
+        price: course.price,
       });
       return await res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/user', userId, 'enrolled'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/courses/recommendations'] });
       toast({
         title: "Enrolled successfully!",
         description: "Course added to your learning path",

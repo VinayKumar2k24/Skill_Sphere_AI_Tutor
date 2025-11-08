@@ -189,62 +189,130 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Fallback quiz in case AI generation fails
-  const getFallbackQuiz = (domain: string) => ({
-    domain,
-    questions: [
-      {
-        question: `What is the primary purpose of ${domain}?`,
-        options: [
-          "To build software applications",
-          "To manage data and information",
-          "To solve specific technical problems",
-          "All of the above"
-        ],
-        correctAnswer: 3
-      },
-      {
-        question: `Which skill is most important for ${domain}?`,
-        options: [
-          "Problem-solving abilities",
-          "Communication skills",
-          "Technical knowledge",
-          "All are equally important"
-        ],
-        correctAnswer: 3
-      },
-      {
-        question: `${domain} is best described as:`,
-        options: [
-          "A theoretical field",
-          "A practical discipline",
-          "Both theoretical and practical",
-          "Neither theoretical nor practical"
-        ],
-        correctAnswer: 2
-      },
-      {
-        question: `What is a common tool used in ${domain}?`,
-        options: [
-          "Specialized software",
-          "Programming languages",
-          "Development frameworks",
-          "Varies by specific application"
-        ],
-        correctAnswer: 3
-      },
-      {
-        question: `How would you rate the learning curve for ${domain}?`,
-        options: [
-          "Very easy",
-          "Moderate",
-          "Challenging but manageable",
-          "Very difficult"
-        ],
-        correctAnswer: 2
-      }
-    ]
-  });
+  // Fallback quiz in case AI generation fails - with randomization for unique questions
+  const getFallbackQuiz = (domain: string) => {
+    // Multiple question banks to ensure variety
+    const questionBanks = [
+      [
+        {
+          question: `What is the primary purpose of ${domain}?`,
+          options: [
+            "To build software applications",
+            "To manage data and information",
+            "To solve specific technical problems",
+            "All of the above"
+          ],
+          correctAnswer: 3
+        },
+        {
+          question: `Which skill is most important for ${domain}?`,
+          options: [
+            "Problem-solving abilities",
+            "Communication skills",
+            "Technical knowledge",
+            "All are equally important"
+          ],
+          correctAnswer: 3
+        },
+        {
+          question: `${domain} is best described as:`,
+          options: [
+            "A theoretical field",
+            "A practical discipline",
+            "Both theoretical and practical",
+            "Neither theoretical nor practical"
+          ],
+          correctAnswer: 2
+        },
+        {
+          question: `What is a common tool used in ${domain}?`,
+          options: [
+            "Specialized software",
+            "Programming languages",
+            "Development frameworks",
+            "Varies by specific application"
+          ],
+          correctAnswer: 3
+        },
+        {
+          question: `How would you rate the learning curve for ${domain}?`,
+          options: [
+            "Very easy",
+            "Moderate",
+            "Challenging but manageable",
+            "Very difficult"
+          ],
+          correctAnswer: 2
+        }
+      ],
+      [
+        {
+          question: `Which approach is most effective for learning ${domain}?`,
+          options: [
+            "Reading documentation only",
+            "Hands-on practice and projects",
+            "Watching video tutorials",
+            "Attending workshops"
+          ],
+          correctAnswer: 1
+        },
+        {
+          question: `What role does ${domain} play in modern technology?`,
+          options: [
+            "It's becoming obsolete",
+            "It's essential and growing",
+            "It's only for specialists",
+            "It's mainly theoretical"
+          ],
+          correctAnswer: 1
+        },
+        {
+          question: `How often should you practice ${domain} skills?`,
+          options: [
+            "Once a month",
+            "Once a week",
+            "Daily or several times per week",
+            "Only when working on projects"
+          ],
+          correctAnswer: 2
+        },
+        {
+          question: `What's the best way to stay current in ${domain}?`,
+          options: [
+            "Follow industry blogs and forums",
+            "Take regular courses",
+            "Work on real projects",
+            "All of the above"
+          ],
+          correctAnswer: 3
+        },
+        {
+          question: `${domain} expertise requires:`,
+          options: [
+            "Natural talent only",
+            "Consistent practice and learning",
+            "Expensive equipment",
+            "A computer science degree"
+          ],
+          correctAnswer: 1
+        }
+      ]
+    ];
+    
+    // Mix questions from both banks for maximum variety
+    const allQuestions = [...questionBanks[0], ...questionBanks[1]];
+    
+    // Shuffle all questions using timestamp-based seed for better randomization
+    const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
+    
+    // Select 5 random questions from the shuffled pool
+    const selectedQuestions = shuffled.slice(0, 5);
+    
+    return {
+      domain,
+      questions: selectedQuestions
+    };
+  };
 
   // Generate quiz based on selected domains
   app.post("/api/quiz/generate", async (req: Request, res: Response) => {
@@ -258,12 +326,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const domain = domains[0]; // Generate quiz for first domain
       
       try {
-        const prompt = `Generate a skill assessment quiz for ${domain}. 
-        Create 10 multiple choice questions that progressively test knowledge from beginner to advanced level.
+        // Add timestamp to ensure unique quiz generation for each user
+        const uniqueSeed = `${userId}-${Date.now()}`;
+        
+        const prompt = `Generate a UNIQUE skill assessment quiz for ${domain}. 
+        User ID: ${uniqueSeed}
+        
+        Create 10 DIFFERENT multiple choice questions that progressively test knowledge from beginner to advanced level.
+        Ensure questions are varied and not repetitive across different quiz attempts.
         Include questions covering:
         - Fundamental concepts (questions 1-3)
         - Intermediate topics (questions 4-7)  
         - Advanced techniques (questions 8-10)
+        
+        Vary the question types:
+        - Conceptual understanding
+        - Practical application
+        - Problem-solving scenarios
+        - Best practices
+        - Common pitfalls
         
         Return ONLY valid JSON in this exact format:
         {
@@ -279,11 +360,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const completion = await openai.chat.completions.create({
           model: "gpt-4o-mini",
           messages: [
-            { role: "system", content: "You are a skill assessment expert. Generate accurate, well-structured quizzes in valid JSON format only." },
+            { role: "system", content: "You are a skill assessment expert. Generate accurate, well-structured, and UNIQUE quizzes in valid JSON format only. Never repeat questions from previous quizzes." },
             { role: "user", content: prompt }
           ],
           response_format: { type: "json_object" },
-          temperature: 0.7,
+          temperature: 0.9, // Higher temperature for more variation
         });
 
         const content = completion.choices[0].message.content || "{}";
@@ -685,7 +766,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Enroll in course
   app.post("/api/courses/enroll", async (req: Request, res: Response) => {
     try {
-      const { userId, courseId, title, provider, url, domain, isPaid } = req.body;
+      const { 
+        userId, courseId, title, provider, url, domain, isPaid,
+        description, skillLevel, duration, rating, price 
+      } = req.body;
       
       console.log("Enroll request received:", { userId, courseId, title });
       
@@ -694,7 +778,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
-      // Create enrollment with actual course details
+      // Create enrollment with complete course details
       const enrollment = await storage.enrollCourse({
         userId,
         courseId, // Store the original course ID
@@ -704,7 +788,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         domain: domain || "General",
         isPaid: isPaid || false,
         progress: 0,
-        completed: false
+        completed: false,
+        // Store all course details for proper display
+        description: description || null,
+        skillLevel: skillLevel || null,
+        duration: duration || null,
+        rating: rating ? Math.round(rating * 10) : null, // Store as integer (4.6 -> 46)
+        price: price ? Math.round(price * 100) : null, // Store as integer cents (49.99 -> 4999)
       });
 
       res.json(enrollment);
@@ -718,8 +808,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/user/:userId/enrolled", async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
-      const courses = await storage.getUserCourses(userId);
-      res.json({ courses });
+      const enrolledCourses = await storage.getUserCourses(userId);
+      
+      // Format courses with proper field mapping for frontend
+      const formattedCourses = enrolledCourses.map(course => ({
+        id: course.id,
+        courseId: course.courseId,
+        title: course.courseTitle,
+        provider: course.coursePlatform,
+        url: course.courseUrl,
+        domain: course.domain,
+        skillLevel: course.skillLevel || 'Not specified',
+        description: course.description || 'No description available',
+        duration: course.duration || 'Self-paced',
+        rating: course.rating ? course.rating / 10 : 0, // Convert from integer (46 -> 4.6)
+        price: course.price ? course.price / 100 : 0, // Convert from cents (4999 -> 49.99)
+        isFree: !course.isPaid,
+        progress: course.progress || 0,
+        completed: course.completed || false,
+        enrolledAt: course.enrolledAt,
+      }));
+      
+      res.json({ courses: formattedCourses });
     } catch (error) {
       console.error("Error fetching enrolled courses:", error);
       res.status(500).json({ error: "Failed to fetch enrolled courses", courses: [] });
@@ -952,7 +1062,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let response = "";
       
       try {
-        const systemPrompt = `You are an AI learning mentor helping a student on their learning journey.
+        const systemPrompt = `You are an AI learning mentor helping a student on SkillPath, an AI-powered learning platform.
 
 STUDENT PROFILE:
 - Skills assessed: ${skills.map(s => `${s.domain} (${s.skillLevel})`).join(', ') || 'None yet'}
@@ -962,14 +1072,32 @@ STUDENT PROFILE:
 - Recent quiz attempts: ${quizHistory.length}
 - Domains without assessment: ${unevaluatedDomains.join(', ') || 'None'}
 
+PLATFORM FEATURES & NAVIGATION:
+When users ask about how to use the platform or specific features, guide them:
+- **Dashboard**: Overview of learning progress, enrolled courses, skill levels, and quick actions
+- **Courses**: Browse and enroll in personalized course recommendations based on skill assessments. Filter by domain and see enrolled courses.
+- **Assessments**: Take AI-generated quizzes to evaluate skills (Beginner/Intermediate/Advanced). Can retake quizzes to improve assessment accuracy.
+- **Schedule**: Plan learning activities and track completion progress
+- **AI Mentor**: (this page) Get personalized guidance, ask questions, receive proactive recommendations
+
 YOUR ROLE:
 - Provide personalized, actionable guidance based on their progress
 - When they complete courses, suggest taking quizzes to assess their new skills
 - If they haven't taken quizzes in their enrolled course domains, recommend assessments
-- Help them set learning goals and create study schedules
+- Help them navigate the platform by explaining features when asked
+- Guide users through their learning journey step-by-step
+- Explain how each platform feature helps them achieve their learning goals
 - Be encouraging, specific, and motivating
 
-Keep responses concise (2-3 short paragraphs max). Focus on next actionable steps.`;
+HOW THE PLATFORM WORKS:
+1. Take skill assessments (Assessments page) to determine current level
+2. Get personalized course recommendations (Courses page) based on assessment
+3. Enroll in courses and track progress (Dashboard)
+4. Create learning schedules (Schedule page) to stay organized
+5. Chat with AI mentor for guidance and support (this page)
+6. Retake quizzes as you learn to track improvement
+
+Keep responses clear and readable (2-3 short paragraphs). Focus on next actionable steps.`;
 
         const messages = [
           { role: "system" as const, content: systemPrompt },
