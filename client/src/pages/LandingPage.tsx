@@ -3,13 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Brain, Target, Zap, Award, ArrowRight } from "lucide-react";
+import { Link } from "wouter";
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen">
       <Hero />
       
-      <section className="py-16 bg-background">
+      <section id="how-it-works" className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <Badge variant="outline" className="mb-4">How It Works</Badge>
@@ -73,10 +74,12 @@ export default function LandingPage() {
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
             Join thousands of learners who are achieving their goals with AI-powered personalization
           </p>
-          <Button size="lg" data-testid="button-cta-bottom">
-            Get Started for Free
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
+          <Link href="/onboarding">
+            <Button size="lg" data-testid="button-cta-bottom">
+              Get Started for Free
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
         </div>
       </section>
     </div>

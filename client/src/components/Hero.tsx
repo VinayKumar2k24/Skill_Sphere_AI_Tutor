@@ -1,8 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, BookOpen, Brain, TrendingUp } from "lucide-react";
+import { Link } from "wouter";
 import heroImage from "@assets/generated_images/Hero_learning_technology_image_18237ae3.png";
 
 export default function Hero() {
+  const scrollToHowItWorks = () => {
+    document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div className="relative overflow-hidden bg-background">
       <div className="absolute inset-0">
@@ -24,11 +29,13 @@ export default function Hero() {
           </p>
           
           <div className="flex flex-wrap gap-4 mb-12">
-            <Button size="lg" data-testid="button-get-started">
-              Get Started Free
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button size="lg" variant="outline" className="backdrop-blur-sm bg-background/50" data-testid="button-how-it-works">
+            <Link href="/onboarding">
+              <Button size="lg" data-testid="button-get-started">
+                Get Started Free
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <Button size="lg" variant="outline" className="backdrop-blur-sm bg-background/50" onClick={scrollToHowItWorks} data-testid="button-how-it-works">
               How It Works
             </Button>
           </div>

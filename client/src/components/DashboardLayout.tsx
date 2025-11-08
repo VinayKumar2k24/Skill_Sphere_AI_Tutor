@@ -30,10 +30,10 @@ interface DashboardLayoutProps {
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Courses", href: "/courses", icon: BookOpen },
+  { name: "Courses", href: "/dashboard#courses", icon: BookOpen },
   { name: "Assessments", href: "/assessments", icon: FileQuestion },
-  { name: "Schedule", href: "/schedule", icon: Calendar },
-  { name: "AI Mentor", href: "/mentor", icon: MessageCircle },
+  { name: "Schedule", href: "/dashboard#schedule", icon: Calendar },
+  { name: "AI Mentor", href: "/dashboard#mentor", icon: MessageCircle },
 ];
 
 export default function DashboardLayout({ children, userName = "User" }: DashboardLayoutProps) {
