@@ -19,9 +19,11 @@ import {
   CheckCircle2,
   ExternalLink
 } from "lucide-react";
-import webDevImage from "@assets/stock_images/web_development_codi_c0eb78cc.jpg";
+import webDevImage from "@assets/generated_images/Web_development_course_thumbnail_cbc6d31e.png";
+import mobileDevImage from "@assets/generated_images/Mobile_development_course_thumbnail_9d7477e2.png";
+import dataScienceImage from "@assets/generated_images/Data_science_course_thumbnail_a43dc243.png";
+import machineLearningImage from "@assets/generated_images/Machine_learning_course_thumbnail_908e060f.png";
 import iotImage from "@assets/stock_images/iot_internet_of_thin_36bc4020.jpg";
-import dataScienceImage from "@assets/stock_images/data_science_analyti_4480540a.jpg";
 
 export default function Dashboard() {
   const userId = localStorage.getItem('userId') || 'demo-user-123';
@@ -59,16 +61,38 @@ export default function Dashboard() {
     return colors[level] || 'bg-muted';
   };
 
-  const getCourseImage = (domain: string) => {
-    const domainLower = domain?.toLowerCase() || '';
-    if (domainLower.includes('web') || domainLower.includes('frontend') || domainLower.includes('backend')) {
-      return webDevImage;
-    } else if (domainLower.includes('iot') || domainLower.includes('hardware') || domainLower.includes('space')) {
-      return iotImage;
-    } else if (domainLower.includes('data') || domainLower.includes('ai') || domainLower.includes('machine') || domainLower.includes('analytics')) {
+  const getCourseImage = (course: any) => {
+    const title = course.title?.toLowerCase() || '';
+    const domain = course.domain?.toLowerCase() || '';
+    const combined = `${title} ${domain}`;
+    
+    // Machine Learning courses
+    if (combined.includes('machine learning') || combined.includes('ml ') || title.includes('machine learning')) {
+      return machineLearningImage;
+    }
+    // Data Science courses
+    else if (combined.includes('data science') || combined.includes('analytics') || combined.includes('statistics')) {
       return dataScienceImage;
     }
-    return webDevImage; // Default fallback
+    // Web Development courses
+    else if (combined.includes('web') || combined.includes('frontend') || combined.includes('backend') || combined.includes('react') || combined.includes('javascript')) {
+      return webDevImage;
+    }
+    // Mobile Development courses
+    else if (combined.includes('mobile') || combined.includes('ios') || combined.includes('android') || combined.includes('app development')) {
+      return mobileDevImage;
+    }
+    // IoT, Hardware, Space courses
+    else if (combined.includes('iot') || combined.includes('hardware') || combined.includes('space') || combined.includes('internet of things')) {
+      return iotImage;
+    }
+    // AI courses (but not ML which is handled above)
+    else if (combined.includes('artificial intelligence') || combined.includes('ai ')) {
+      return machineLearningImage;
+    }
+    
+    // Default fallback
+    return webDevImage;
   };
 
   return (
@@ -194,7 +218,7 @@ export default function Dashboard() {
                       {/* Course Image */}
                       <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden">
                         <img 
-                          src={getCourseImage(course.domain)} 
+                          src={getCourseImage(course)} 
                           alt={course.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
