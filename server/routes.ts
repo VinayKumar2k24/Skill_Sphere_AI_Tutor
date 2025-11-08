@@ -857,6 +857,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get AI mentor recommendations
+  app.get("/api/mentor/recommendations/:userId", async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.params;
+      
+      const skills = await storage.getUserSkillLevels(userId);
+      const courses = await storage.getUserCourses(userId);
+      const quizHistory = await db.select()
+        .from(quizAttempts)
+        .where(eq(quizAttempts.userId, userId))
+        .orderBy(desc(quizAttempts.completedAt))
+        .limit(1);
+      
+      const completedCourses = courses.filter(c => c.completed);
+      const inProgressCourses = courses.filter(c => !c.completed && (c.progress || 0) > 0);
+      const assessedDomains = skills.map(s => s.domain);
+      const unevaluatedDomains = inProgressCourses
+        .map(c => c.domain)
+        .filter(d => d && !assessedDomains.includes(d));
+      
+      const recommendations = [];
+      
+      // Recommend quizzes for unevaluated domains
+      if (unevaluatedDomains.length > 0) {
+        recommendations.push({
+          type: 'quiz',
+          title: 'Take a Skills Assessment',
+          description: `You're learning ${unevaluatedDomains.join(', ')}. Assess your skills to track your progress and get personalized recommendations!`,
+          action: 'Take Quiz',
+          link: '/assessments'
+        });
+      }
+      
+      // Recommend quizzes after course completion
+      if (completedCourses.length > 0 && skills.length < completedCourses.length) {
+        recommendations.push({
+          type: 'quiz',
+          title: 'Validate Your Learning',
+          description: `You've completed ${completedCourses.length} course${completedCourses.length > 1 ? 's' : ''}! Take a quiz to measure what you've learned.`,
+          action: 'Start Assessment',
+          link: '/assessments'
+        });
+      }
+      
+      // Recommend courses if they have skills but few enrollments
+      if (skills.length > 0 && courses.length < 3) {
+        recommendations.push({
+          type: 'course',
+          title: 'Expand Your Learning',
+          description: `Based on your ${skills.map(s => s.domain).join(', ')} skills, there are great courses waiting for you!`,
+          action: 'Browse Courses',
+          link: '/courses'
+        });
+      }
+      
+      // Encourage first quiz if completely new
+      if (skills.length === 0 && quizHistory.length === 0) {
+        recommendations.push({
+          type: 'quiz',
+          title: 'Start Your Journey',
+          description: 'Take your first skills assessment to get personalized course recommendations tailored to your level!',
+          action: 'Get Started',
+          link: '/assessments'
+        });
+      }
+      
+      res.json({ recommendations });
+    } catch (error) {
+      console.error("Error getting recommendations:", error);
+      res.status(500).json({ error: "Failed to get recommendations", recommendations: [] });
+    }
+  });
+
   // Chat with AI mentor
   app.post("/api/chat", async (req: Request, res: Response) => {
     try {
@@ -866,20 +939,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "User ID and message are required" });
       }
 
-      // Get user context
+      // Get comprehensive user context
       const skills = await storage.getUserSkillLevels(userId);
       const courses = await storage.getUserCourses(userId);
+      const quizHistory = await db.select()
+        .from(quizAttempts)
+        .where(eq(quizAttempts.userId, userId))
+        .orderBy(desc(quizAttempts.completedAt))
+        .limit(5);
+      
+      // Analyze learning progress
+      const completedCourses = courses.filter(c => c.completed);
+      const inProgressCourses = courses.filter(c => !c.completed && (c.progress || 0) > 0);
+      const assessedDomains = skills.map(s => s.domain);
+      const unevaluatedDomains = inProgressCourses
+        .map(c => c.domain)
+        .filter(d => d && !assessedDomains.includes(d));
       
       let response = "";
       
       try {
         const systemPrompt = `You are an AI learning mentor helping a student on their learning journey.
-        
-        Student's skills: ${skills.map(s => `${s.domain} (${s.skillLevel})`).join(', ')}
-        Enrolled in ${courses.length} courses
-        
-        Provide personalized guidance, answer questions, suggest study strategies, and keep them motivated.
-        Be encouraging, specific, and actionable. Keep responses concise (2-3 paragraphs max).`;
+
+STUDENT PROFILE:
+- Skills assessed: ${skills.map(s => `${s.domain} (${s.skillLevel})`).join(', ') || 'None yet'}
+- Total courses enrolled: ${courses.length}
+- Completed courses: ${completedCourses.length}
+- In-progress courses: ${inProgressCourses.length}
+- Recent quiz attempts: ${quizHistory.length}
+- Domains without assessment: ${unevaluatedDomains.join(', ') || 'None'}
+
+YOUR ROLE:
+- Provide personalized, actionable guidance based on their progress
+- When they complete courses, suggest taking quizzes to assess their new skills
+- If they haven't taken quizzes in their enrolled course domains, recommend assessments
+- Help them set learning goals and create study schedules
+- Be encouraging, specific, and motivating
+
+Keep responses concise (2-3 short paragraphs max). Focus on next actionable steps.`;
 
         const messages = [
           { role: "system" as const, content: systemPrompt },
@@ -897,12 +994,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         response = completion.choices[0].message.content || "";
       } catch (aiError) {
         console.error("AI chat failed, using fallback:", aiError);
-        // Fallback responses based on common questions
+        // Context-aware fallback responses
         const lowerMessage = message.toLowerCase();
+        
         if (lowerMessage.includes('motivat') || lowerMessage.includes('stuck') || lowerMessage.includes('difficult')) {
           response = "Learning can be challenging, but you're making great progress! Remember that every expert was once a beginner. Take it one step at a time, celebrate small wins, and don't be afraid to ask for help. You've got this!";
         } else if (lowerMessage.includes('next') || lowerMessage.includes('what should') || lowerMessage.includes('recommend')) {
-          response = `Based on your current skill levels, I'd recommend focusing on building practical projects. Hands-on experience is one of the best ways to solidify your knowledge. Check out the courses page for some great resources tailored to your level!`;
+          // Smart recommendations based on user state
+          if (unevaluatedDomains.length > 0) {
+            response = `Great question! I notice you're making progress in ${unevaluatedDomains.join(', ')}. Once you feel comfortable with the material, I'd recommend taking a skill assessment quiz to measure your progress and get personalized course recommendations. Head to the Assessments page when you're ready!`;
+          } else if (completedCourses.length > 0 && skills.length === 0) {
+            response = `You've completed ${completedCourses.length} course${completedCourses.length > 1 ? 's' : ''} - that's awesome! Now would be a great time to take a skills assessment to see how much you've learned and get recommendations for your next steps. Check out the Assessments page!`;
+          } else {
+            response = `Based on your current skill levels, I'd recommend focusing on building practical projects. Hands-on experience is one of the best ways to solidify your knowledge. Check out the Courses page for resources tailored to your level!`;
+          }
+        } else if (lowerMessage.includes('quiz') || lowerMessage.includes('assess') || lowerMessage.includes('test')) {
+          if (skills.length === 0) {
+            response = "Taking your first skills assessment is a great way to start! It'll help us understand your current level and recommend the perfect courses for you. Visit the Assessments page to get started!";
+          } else {
+            response = `You've already assessed your skills in ${assessedDomains.join(', ')}. ${unevaluatedDomains.length > 0 ? `Consider taking quizzes in ${unevaluatedDomains.join(', ')} to track your progress in those areas!` : 'Keep learning and reassess periodically to track your improvement!'}`;
+          }
         } else if (lowerMessage.includes('schedule') || lowerMessage.includes('plan') || lowerMessage.includes('time')) {
           response = "Creating a consistent learning schedule is key to success! Try dedicating specific time blocks each day, even if it's just 30 minutes. Use the Schedule feature to plan your learning milestones and track your progress.";
         } else {

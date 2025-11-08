@@ -211,7 +211,7 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Link href="/courses">
-            <Card className="p-6 hover-elevate transition-all cursor-pointer" data-testid="card-quick-action-courses">
+            <Card className="p-6 glow-subtle cursor-pointer" data-testid="card-quick-action-courses">
               <div className="flex items-start gap-4">
                 <div className="p-3 rounded-lg bg-primary/10">
                   <BookOpen className="h-6 w-6 text-primary" />
@@ -225,7 +225,7 @@ export default function Dashboard() {
           </Link>
 
           <Link href="/schedule">
-            <Card className="p-6 hover-elevate transition-all cursor-pointer" data-testid="card-quick-action-schedule">
+            <Card className="p-6 glow-subtle cursor-pointer" data-testid="card-quick-action-schedule">
               <div className="flex items-start gap-4">
                 <div className="p-3 rounded-lg bg-chart-1/10">
                   <Calendar className="h-6 w-6 text-chart-1" />
@@ -239,7 +239,7 @@ export default function Dashboard() {
           </Link>
 
           <Link href="/mentor">
-            <Card className="p-6 hover-elevate transition-all cursor-pointer" data-testid="card-quick-action-mentor">
+            <Card className="p-6 glow-subtle cursor-pointer" data-testid="card-quick-action-mentor">
               <div className="flex items-start gap-4">
                 <div className="p-3 rounded-lg bg-chart-3/10">
                   <MessageCircle className="h-6 w-6 text-chart-3" />

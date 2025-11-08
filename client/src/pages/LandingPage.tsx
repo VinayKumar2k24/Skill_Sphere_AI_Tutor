@@ -23,7 +23,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="p-6 text-center">
+            <Card className="p-6 text-center glow-subtle animate-fade-in">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
                 <Brain className="h-6 w-6 text-primary" />
               </div>
@@ -33,7 +33,7 @@ export default function LandingPage() {
               </p>
             </Card>
 
-            <Card className="p-6 text-center">
+            <Card className="p-6 text-center glow-subtle animate-fade-in">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
                 <Target className="h-6 w-6 text-primary" />
               </div>
@@ -43,7 +43,7 @@ export default function LandingPage() {
               </p>
             </Card>
 
-            <Card className="p-6 text-center">
+            <Card className="p-6 text-center glow-subtle animate-fade-in">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
                 <Zap className="h-6 w-6 text-primary" />
               </div>
@@ -53,7 +53,7 @@ export default function LandingPage() {
               </p>
             </Card>
 
-            <Card className="p-6 text-center">
+            <Card className="p-6 text-center glow-subtle animate-fade-in">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
                 <Award className="h-6 w-6 text-primary" />
               </div>
@@ -75,7 +75,7 @@ export default function LandingPage() {
             Join thousands of learners who are achieving their goals with AI-powered personalization
           </p>
           <Link href="/signup">
-            <Button size="lg" data-testid="button-cta-bottom">
+            <Button size="lg" className="glow-primary pop-on-click" data-testid="button-cta-bottom">
               Get Started for Free
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>

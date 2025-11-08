@@ -16,7 +16,7 @@ export default function Hero() {
           alt="Students learning with technology" 
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/85 to-background/70" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/98 via-background/92 to-background/80 backdrop-blur-[2px]" />
       </div>
       
       <div className="relative max-w-7xl mx-auto px-4 py-24 sm:py-32">
@@ -30,19 +30,19 @@ export default function Hero() {
           
           <div className="flex flex-wrap gap-4 mb-12">
             <Link href="/signup">
-              <Button size="lg" data-testid="button-get-started">
+              <Button size="lg" className="glow-primary pop-on-click" data-testid="button-get-started">
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="backdrop-blur-sm bg-background/50" onClick={scrollToHowItWorks} data-testid="button-how-it-works">
+            <Button size="lg" variant="outline" className="backdrop-blur-md bg-background/60 border-border/50 hover:bg-background/80" onClick={scrollToHowItWorks} data-testid="button-how-it-works">
               How It Works
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-md bg-primary/10">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 animate-fade-in">
+            <div className="flex items-start gap-3 p-3 rounded-lg backdrop-blur-sm bg-card/40 border border-border/30 glow-subtle">
+              <div className="p-2 rounded-md bg-primary/10 flex-shrink-0">
                 <Brain className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -51,8 +51,8 @@ export default function Hero() {
               </div>
             </div>
             
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-md bg-primary/10">
+            <div className="flex items-start gap-3 p-3 rounded-lg backdrop-blur-sm bg-card/40 border border-border/30 glow-subtle">
+              <div className="p-2 rounded-md bg-primary/10 flex-shrink-0">
                 <BookOpen className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -61,8 +61,8 @@ export default function Hero() {
               </div>
             </div>
             
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-md bg-primary/10">
+            <div className="flex items-start gap-3 p-3 rounded-lg backdrop-blur-sm bg-card/40 border border-border/30 glow-subtle">
+              <div className="p-2 rounded-md bg-primary/10 flex-shrink-0">
                 <TrendingUp className="h-6 w-6 text-primary" />
               </div>
               <div>
