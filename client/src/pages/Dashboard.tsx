@@ -178,15 +178,15 @@ export default function Dashboard() {
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="font-medium text-foreground group-hover:text-primary transition-colors">{course.courseTitle}</p>
+                          <p className="font-medium text-foreground group-hover:text-primary transition-colors">{course.title}</p>
                           {course.completed && (
                             <CheckCircle2 className="h-4 w-4 text-chart-3 flex-shrink-0" />
                           )}
                         </div>
-                        <p className="text-sm text-muted-foreground">{course.coursePlatform}</p>
+                        <p className="text-sm text-muted-foreground">{course.provider}</p>
                       </div>
                       <a 
-                        href={course.courseUrl} 
+                        href={course.url} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="p-2 rounded-md hover:bg-primary/20 transition-colors"
