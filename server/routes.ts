@@ -4,7 +4,11 @@ import { storage } from "./storage";
 import OpenAI from "openai";
 import { z } from "zod";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY,
+  timeout: 15000, // 15 second timeout
+  maxRetries: 0 // No retries, fail fast and use fallbacks
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -223,7 +227,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { userId } = req.params;
       const skills = await storage.getUserSkillLevels(userId);
-      res.json(skills);
+      // Transform to domain -> skill level mapping
+      const skillMap = skills.reduce((acc: Record<string, string>, skill) => {
+        acc[skill.domain] = skill.skillLevel;
+        return acc;
+      }, {});
+      res.json(skillMap);
     } catch (error) {
       console.error("Error fetching skills:", error);
       res.status(500).json({ error: "Failed to fetch skills" });
@@ -283,32 +292,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Enroll in a course
-  app.post("/api/courses/enroll", async (req: Request, res: Response) => {
-    try {
-      const { userId, courseTitle, coursePlatform, courseUrl, domain, isPaid } = req.body;
-      
-      if (!userId || !courseTitle || !courseUrl || !domain) {
-        return res.status(400).json({ error: "Missing required fields" });
-      }
-
-      const course = await storage.enrollCourse({
-        userId,
-        courseTitle,
-        coursePlatform,
-        courseUrl,
-        domain,
-        isPaid: isPaid || false,
-        progress: 0,
-        completed: false
-      });
-
-      res.json(course);
-    } catch (error) {
-      console.error("Error enrolling in course:", error);
-      res.status(500).json({ error: "Failed to enroll in course" });
-    }
-  });
 
   // Get user's enrolled courses
   app.get("/api/user/:userId/courses", async (req: Request, res: Response) => {
@@ -540,7 +523,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { userId, courseId } = req.body;
       
+      console.log("Enroll request received:", { userId, courseId, body: req.body });
+      
       if (!userId || !courseId) {
+        console.log("Missing fields - userId:", userId, "courseId:", courseId);
         return res.status(400).json({ error: "Missing required fields" });
       }
 
