@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import OpenAI from "openai";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY,
@@ -12,24 +13,176 @@ const openai = new OpenAI({
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Create or update user after onboarding
-  app.post("/api/user/onboard", async (req: Request, res: Response) => {
+  // Authentication routes
+  app.post("/api/auth/signup", async (req: Request, res: Response) => {
     try {
-      const { name, domains } = req.body;
+      const { username, email, fullName, password } = req.body;
       
-      if (!name || !domains || !Array.isArray(domains)) {
-        return res.status(400).json({ error: "Name and domains are required" });
+      if (!username || !email || !password) {
+        return res.status(400).json({ error: "Username, email, and password are required" });
       }
 
-      // Create a simple demo user (in production, this would use proper authentication)
-      const userId = `user-${Date.now()}`;
+      if (password.length < 6) {
+        return res.status(400).json({ error: "Password must be at least 6 characters" });
+      }
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ error: "Username already exists" });
+      }
+
+      const existingEmail = await storage.getUserByEmail(email);
+      if (existingEmail) {
+        return res.status(400).json({ error: "Email already exists" });
+      }
+
+      // Hash password with cost factor of 10 (secure default)
+      const hashedPassword = await bcrypt.hash(password, 10);
+
       const user = await storage.createUser({
-        username: name.toLowerCase().replace(/\s+/g, '-') + `-${Date.now()}`,
-        password: 'demo-password',
-        selectedDomains: domains
+        username,
+        email,
+        fullName: fullName || null,
+        password: hashedPassword,
+        selectedDomains: []
       });
 
-      res.json({ userId: user.id, username: user.username });
+      res.json({ 
+        userId: user.id, 
+        username: user.username,
+        fullName: user.fullName,
+        email: user.email
+      });
+    } catch (error) {
+      console.error("Error during signup:", error);
+      res.status(500).json({ error: "Failed to create account" });
+    }
+  });
+
+  app.post("/api/auth/login", async (req: Request, res: Response) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ error: "Username and password are required" });
+      }
+
+      const user = await storage.getUserByUsername(username);
+      if (!user) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      res.json({ 
+        userId: user.id, 
+        username: user.username,
+        fullName: user.fullName,
+        email: user.email,
+        selectedDomains: user.selectedDomains
+      });
+    } catch (error) {
+      console.error("Error during login:", error);
+      res.status(500).json({ error: "Failed to login" });
+    }
+  });
+
+  app.post("/api/auth/logout", async (_req: Request, res: Response) => {
+    res.json({ success: true });
+  });
+
+  app.get("/api/auth/check", async (req: Request, res: Response) => {
+    const userId = req.query.userId as string;
+    
+    if (!userId) {
+      return res.status(401).json({ authenticated: false });
+    }
+
+    const user = await storage.getUser(userId);
+    if (!user) {
+      return res.status(401).json({ authenticated: false });
+    }
+
+    res.json({ 
+      authenticated: true,
+      userId: user.id,
+      username: user.username,
+      fullName: user.fullName,
+      selectedDomains: user.selectedDomains
+    });
+  });
+
+  // Get user profile
+  app.get("/api/user/:userId", async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.params;
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json({
+        userId: user.id,
+        username: user.username,
+        email: user.email,
+        fullName: user.fullName,
+        selectedDomains: user.selectedDomains
+      });
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ error: "Failed to fetch user" });
+    }
+  });
+
+  // Update user profile
+  app.patch("/api/user/:userId", async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.params;
+      const { fullName, email } = req.body;
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      await storage.updateUser(userId, {
+        fullName: fullName || user.fullName,
+        email: email || user.email
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ error: "Failed to update user" });
+    }
+  });
+  
+  // Update user domains after onboarding (user must be authenticated)
+  app.post("/api/user/onboard", async (req: Request, res: Response) => {
+    try {
+      const { userId, domains } = req.body;
+      
+      if (!userId || !domains || !Array.isArray(domains)) {
+        return res.status(400).json({ error: "User ID and domains are required" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      await storage.updateUserDomains(userId, domains);
+
+      res.json({ 
+        userId: user.id, 
+        username: user.username,
+        selectedDomains: domains
+      });
     } catch (error) {
       console.error("Error onboarding user:", error);
       res.status(500).json({ error: "Failed to onboard user" });
@@ -171,6 +324,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log("User not found, creating demo user...");
         user = await storage.createUser({
           username: `demo-user-${Date.now()}`,
+          email: `demo-user-${Date.now()}@example.com`,
           password: 'demo',
           selectedDomains: [domain]
         });

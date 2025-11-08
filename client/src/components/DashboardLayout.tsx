@@ -91,7 +91,7 @@ export default function DashboardLayout({ children, userName = "User" }: Dashboa
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full" data-testid="button-user-menu">
+                  <Button variant="ghost" size="icon" className="rounded-full hover-elevate" data-testid="button-user-menu">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src="" />
                       <AvatarFallback>{initials}</AvatarFallback>
@@ -101,16 +101,26 @@ export default function DashboardLayout({ children, userName = "User" }: Dashboa
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem data-testid="menu-profile">
-                    <User className="h-4 w-4 mr-2" />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem data-testid="menu-settings">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Settings
-                  </DropdownMenuItem>
+                  <Link href="/settings">
+                    <DropdownMenuItem data-testid="menu-profile">
+                      <User className="h-4 w-4 mr-2" />
+                      Profile
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link href="/settings">
+                    <DropdownMenuItem data-testid="menu-settings">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Settings
+                    </DropdownMenuItem>
+                  </Link>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem data-testid="menu-logout">
+                  <DropdownMenuItem 
+                    data-testid="menu-logout"
+                    onClick={() => {
+                      localStorage.clear();
+                      window.location.href = '/login';
+                    }}
+                  >
                     <LogOut className="h-4 w-4 mr-2" />
                     Logout
                   </DropdownMenuItem>

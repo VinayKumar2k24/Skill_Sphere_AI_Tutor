@@ -20,7 +20,9 @@ export interface IStorage {
   // User operations
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(userId: string, updates: Partial<InsertUser>): Promise<void>;
   updateUserDomains(userId: string, domains: string[]): Promise<void>;
   
   // Domain skill levels
@@ -59,9 +61,18 @@ export class DbStorage implements IStorage {
     return result[0];
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    return result[0];
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const result = await db.insert(users).values(insertUser).returning();
     return result[0];
+  }
+
+  async updateUser(userId: string, updates: Partial<InsertUser>): Promise<void> {
+    await db.update(users).set(updates).where(eq(users.id, userId));
   }
 
   async updateUserDomains(userId: string, domains: string[]): Promise<void> {

@@ -1,0 +1,69 @@
+Enhance and correct the existing web application with the following major improvements and new features:
+
+🔒 Security & User Authentication
+
+Implement a secure signup and login system before the user can access the main website.
+
+When a user clicks the “Get Started Free” button, ensure their signup data is properly stored in the database.
+
+Add necessary security protocols to protect user credentials and session data.
+
+👤 User Portal & Navigation Fixes
+
+Fix all existing errors in the user portal.
+
+Ensure that the Profile, Logout, and Settings options open and function correctly.
+
+The user logo (avatar) should be clickable, showing a dropdown with options like Profile, Settings, and Logout.
+
+The Settings button should open a dedicated settings page where users can update their details or preferences.
+
+🌐 Domain Expansion
+
+Add new learning domains to the platform, including:
+
+IoT (Internet of Things)
+
+Space Technology
+
+Hardware Domains
+
+🧩 Quiz and Assessment Flow
+
+After the user completes a quiz, display a detailed result showing which questions were correct and which were wrong.
+
+When the user clicks “Recommend Courses”, it should directly navigate to the Course Recommendation page.
+
+On the Course Recommendation page, after clicking “Enroll”, the selected course should move to the “Enrolled Courses” section instead of displaying all courses again.
+
+📊 Dashboard Enhancements
+
+The Dashboard page should dynamically display:
+
+The user’s enrolled courses.
+
+The progress tracking for each course.
+
+The AI Mentor’s upcoming tasks and recommendations based on the user’s learning behavior.
+
+🤖 AI Mentor Features
+
+The AI Mentor should actively:
+
+Track user progress and schedule upcoming tasks or quizzes.
+
+Automatically assign new quizzes after a user completes a course.
+
+Evaluate the user’s performance and declare their level (Beginner, Intermediate, or Advanced).
+
+Suggest next learning steps, topics, or practice exercises accordingly.
+
+Personalize guidance to help users strengthen their weaker areas and improve their skills effectively.
+
+🎨 UI/UX Improvements
+
+Redesign the UI to make it more attractive, transparent, and user-friendly.
+
+Add hover animations so that icons or buttons pop up or glow when the cursor moves near them.
+
+Maintain a modern, clean, and responsive look across all devices.

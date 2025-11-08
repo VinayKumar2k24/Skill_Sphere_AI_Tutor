@@ -29,7 +29,7 @@ export default function Hero() {
           </p>
           
           <div className="flex flex-wrap gap-4 mb-12">
-            <Link href="/onboarding">
+            <Link href="/signup">
               <Button size="lg" data-testid="button-get-started">
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5" />
