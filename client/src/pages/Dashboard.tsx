@@ -19,11 +19,11 @@ import {
   CheckCircle2,
   ExternalLink
 } from "lucide-react";
-import webDevImage from "@assets/generated_images/Web_development_course_thumbnail_cbc6d31e.png";
-import mobileDevImage from "@assets/generated_images/Mobile_development_course_thumbnail_9d7477e2.png";
-import dataScienceImage from "@assets/generated_images/Data_science_course_thumbnail_a43dc243.png";
-import machineLearningImage from "@assets/generated_images/Machine_learning_course_thumbnail_908e060f.png";
-import iotImage from "@assets/stock_images/iot_internet_of_thin_36bc4020.jpg";
+import webDevImage from "@assets/generated_images/Web_development_course_thumbnail_cbc6d31e.png?url";
+import mobileDevImage from "@assets/generated_images/Mobile_development_course_thumbnail_9d7477e2.png?url";
+import dataScienceImage from "@assets/generated_images/Data_science_course_thumbnail_a43dc243.png?url";
+import machineLearningImage from "@assets/generated_images/Machine_learning_course_thumbnail_908e060f.png?url";
+import iotImage from "@assets/stock_images/iot_internet_of_thin_36bc4020.jpg?url";
 
 export default function Dashboard() {
   const userId = localStorage.getItem('userId') || 'demo-user-123';
