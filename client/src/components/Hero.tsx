@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, BookOpen, Brain, TrendingUp } from "lucide-react";
 import { Link } from "wouter";
-import heroImage from "@assets/generated_images/Hero_learning_technology_image_18237ae3.png";
+import heroImage from "@assets/stock_images/futuristic_ai_learni_56654220.jpg";
 
 export default function Hero() {
   const scrollToHowItWorks = () => {

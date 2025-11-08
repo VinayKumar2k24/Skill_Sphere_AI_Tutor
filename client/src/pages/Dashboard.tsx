@@ -19,6 +19,9 @@ import {
   CheckCircle2,
   ExternalLink
 } from "lucide-react";
+import webDevImage from "@assets/stock_images/web_development_codi_c0eb78cc.jpg";
+import iotImage from "@assets/stock_images/iot_internet_of_thin_36bc4020.jpg";
+import dataScienceImage from "@assets/stock_images/data_science_analyti_4480540a.jpg";
 
 export default function Dashboard() {
   const userId = localStorage.getItem('userId') || 'demo-user-123';
@@ -54,6 +57,18 @@ export default function Dashboard() {
       'Advanced': 'bg-chart-3/10 text-chart-3 border-chart-3/20',
     };
     return colors[level] || 'bg-muted';
+  };
+
+  const getCourseImage = (domain: string) => {
+    const domainLower = domain?.toLowerCase() || '';
+    if (domainLower.includes('web') || domainLower.includes('frontend') || domainLower.includes('backend')) {
+      return webDevImage;
+    } else if (domainLower.includes('iot') || domainLower.includes('hardware') || domainLower.includes('space')) {
+      return iotImage;
+    } else if (domainLower.includes('data') || domainLower.includes('ai') || domainLower.includes('machine') || domainLower.includes('analytics')) {
+      return dataScienceImage;
+    }
+    return webDevImage; // Default fallback
   };
 
   return (
@@ -172,34 +187,61 @@ export default function Dashboard() {
                 </Link>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {enrolledCourses.slice(0, 3).map((course: any) => (
-                  <div key={course.id} className="p-4 rounded-lg border border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-primary/40 transition-all group" data-testid={`enrolled-course-${course.id}`}>
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="font-medium text-foreground group-hover:text-primary transition-colors">{course.title}</p>
-                          {course.completed && (
-                            <CheckCircle2 className="h-4 w-4 text-chart-3 flex-shrink-0" />
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground">{course.provider}</p>
+                  <div key={course.id} className="overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-primary/40 transition-all group" data-testid={`enrolled-course-${course.id}`}>
+                    <div className="flex gap-4">
+                      {/* Course Image */}
+                      <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden">
+                        <img 
+                          src={getCourseImage(course.domain)} 
+                          alt={course.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/60" />
                       </div>
-                      <a 
-                        href={course.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="p-2 rounded-md hover:bg-primary/20 transition-colors"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ExternalLink className="h-4 w-4 text-primary" />
-                      </a>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Progress value={course.progress || 0} className="flex-1 h-2" />
-                      <span className="text-xs font-medium text-primary min-w-[3rem] text-right">
-                        {course.progress || 0}%
-                      </span>
+                      
+                      {/* Course Info */}
+                      <div className="flex-1 py-3 pr-4 min-w-0">
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <p className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">{course.title}</p>
+                              {course.completed && (
+                                <CheckCircle2 className="h-4 w-4 text-chart-3 flex-shrink-0" />
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 flex-wrap mb-2">
+                              <p className="text-sm text-muted-foreground">{course.provider}</p>
+                              {course.domain && (
+                                <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
+                                  {course.domain}
+                                </Badge>
+                              )}
+                              {course.skillLevel && (
+                                <Badge variant="outline" className="text-xs bg-chart-1/10 text-chart-1 border-chart-1/20">
+                                  {course.skillLevel}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <a 
+                            href={course.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="p-2 rounded-md hover:bg-primary/20 transition-colors flex-shrink-0"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <ExternalLink className="h-4 w-4 text-primary" />
+                          </a>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Progress value={course.progress || 0} className="flex-1 h-2" />
+                          <span className="text-xs font-semibold text-primary min-w-[3rem] text-right">
+                            {course.progress || 0}%
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
