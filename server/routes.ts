@@ -682,27 +682,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Enroll in course (simplified version for frontend)
+  // Enroll in course
   app.post("/api/courses/enroll", async (req: Request, res: Response) => {
     try {
-      const { userId, courseId } = req.body;
+      const { userId, courseId, title, provider, url, domain, isPaid } = req.body;
       
-      console.log("Enroll request received:", { userId, courseId, body: req.body });
+      console.log("Enroll request received:", { userId, courseId, title });
       
       if (!userId || !courseId) {
         console.log("Missing fields - userId:", userId, "courseId:", courseId);
         return res.status(400).json({ error: "Missing required fields" });
       }
 
-      // For MVP, just create a simple enrollment record
-      // In production, this would fetch course details and create proper enrollment
+      // Create enrollment with actual course details
       const enrollment = await storage.enrollCourse({
         userId,
-        courseTitle: "Course " + courseId,
-        coursePlatform: "Platform",
-        courseUrl: "https://example.com",
-        domain: "General",
-        isPaid: false,
+        courseId, // Store the original course ID
+        courseTitle: title || `Course ${courseId}`,
+        coursePlatform: provider || "Platform",
+        courseUrl: url || "https://example.com",
+        domain: domain || "General",
+        isPaid: isPaid || false,
         progress: 0,
         completed: false
       });

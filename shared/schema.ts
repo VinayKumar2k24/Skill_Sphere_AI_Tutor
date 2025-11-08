@@ -36,6 +36,7 @@ export const quizAttempts = pgTable("quiz_attempts", {
 export const enrolledCourses = pgTable("enrolled_courses", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull().references(() => users.id),
+  courseId: varchar("course_id").notNull(), // Original course ID from recommendations
   courseTitle: text("course_title").notNull(),
   coursePlatform: text("course_platform").notNull(),
   courseUrl: text("course_url").notNull(),

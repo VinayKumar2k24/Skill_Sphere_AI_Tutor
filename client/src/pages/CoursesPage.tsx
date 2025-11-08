@@ -33,6 +33,7 @@ interface Course {
   duration: string;
   description: string;
   isFree: boolean;
+  courseId?: string; // For enrolled courses from database
 }
 
 export default function CoursesPage() {
@@ -66,10 +67,15 @@ export default function CoursesPage() {
 
   // Enroll in course mutation
   const enrollMutation = useMutation({
-    mutationFn: async (courseId: string) => {
+    mutationFn: async (course: Course) => {
       const res = await apiRequest('POST', '/api/courses/enroll', {
         userId,
-        courseId,
+        courseId: course.id,
+        title: course.title,
+        provider: course.provider,
+        url: course.url,
+        domain: course.domain,
+        isPaid: !course.isFree,
       });
       return await res.json();
     },
@@ -84,18 +90,23 @@ export default function CoursesPage() {
 
   const courses = coursesData?.courses || [];
   const enrolledCourses = enrolledCoursesData?.courses || [];
+  
+  // Helper to check if course is enrolled
+  const isEnrolledCourse = (courseId: string) => {
+    return enrolledCourses.some(ec => ec.courseId === courseId);
+  };
 
   // Filter courses
   const filteredCourses = courses.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         course.provider.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (course.title?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+                         (course.provider?.toLowerCase() || '').includes(searchQuery.toLowerCase());
     const matchesDomain = !selectedDomain || course.domain === selectedDomain;
     return matchesSearch && matchesDomain;
   });
 
   const filteredEnrolledCourses = enrolledCourses.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         course.provider.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (course.title?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+                         (course.provider?.toLowerCase() || '').includes(searchQuery.toLowerCase());
     const matchesDomain = !selectedDomain || course.domain === selectedDomain;
     return matchesSearch && matchesDomain;
   });
@@ -160,7 +171,7 @@ export default function CoursesPage() {
           {!isEnrolled && (
             <Button
               className="flex-1"
-              onClick={() => enrollMutation.mutate(course.id)}
+              onClick={() => enrollMutation.mutate(course)}
               disabled={enrollMutation.isPending}
               data-testid={`button-enroll-${course.id}`}
             >
@@ -287,7 +298,7 @@ export default function CoursesPage() {
                 ) : (
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {freeCourses.map(course => (
-                      <CourseCard key={course.id} course={course} />
+                      <CourseCard key={course.id} course={course} isEnrolled={isEnrolledCourse(course.id)} />
                     ))}
                   </div>
                 )}
@@ -302,7 +313,7 @@ export default function CoursesPage() {
                 ) : (
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {paidCourses.map(course => (
-                      <CourseCard key={course.id} course={course} />
+                      <CourseCard key={course.id} course={course} isEnrolled={isEnrolledCourse(course.id)} />
                     ))}
                   </div>
                 )}
@@ -317,7 +328,7 @@ export default function CoursesPage() {
                 ) : (
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredCourses.map(course => (
-                      <CourseCard key={course.id} course={course} />
+                      <CourseCard key={course.id} course={course} isEnrolled={isEnrolledCourse(course.id)} />
                     ))}
                   </div>
                 )}
