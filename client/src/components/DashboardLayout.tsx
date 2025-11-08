@@ -48,13 +48,11 @@ export default function DashboardLayout({ children, userName = "User" }: Dashboa
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-8">
-              <Link href="/dashboard">
-                <a className="font-display font-bold text-xl text-foreground flex items-center gap-2" data-testid="link-logo">
-                  <div className="p-2 rounded-md bg-primary text-primary-foreground">
-                    <LayoutDashboard className="h-5 w-5" />
-                  </div>
-                  SkillPath
-                </a>
+              <Link href="/dashboard" className="font-display font-bold text-xl text-foreground flex items-center gap-2" data-testid="link-logo">
+                <div className="p-2 rounded-md bg-primary text-primary-foreground">
+                  <LayoutDashboard className="h-5 w-5" />
+                </div>
+                SkillPath
               </Link>
 
               <nav className="hidden md:flex items-center gap-1">
@@ -62,18 +60,18 @@ export default function DashboardLayout({ children, userName = "User" }: Dashboa
                   const Icon = item.icon;
                   const isActive = location === item.href;
                   return (
-                    <Link key={item.name} href={item.href}>
-                      <a
-                        className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors hover-elevate ${
-                          isActive
-                            ? "bg-primary/10 text-primary"
-                            : "text-muted-foreground"
-                        }`}
-                        data-testid={`nav-${item.name.toLowerCase()}`}
-                      >
-                        <Icon className="h-4 w-4" />
-                        {item.name}
-                      </a>
+                    <Link 
+                      key={item.name} 
+                      href={item.href}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors hover-elevate ${
+                        isActive
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground"
+                      }`}
+                      data-testid={`nav-${item.name.toLowerCase()}`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {item.name}
                     </Link>
                   );
                 })}
@@ -128,18 +126,18 @@ export default function DashboardLayout({ children, userName = "User" }: Dashboa
                   const Icon = item.icon;
                   const isActive = location === item.href;
                   return (
-                    <Link key={item.name} href={item.href}>
-                      <a
-                        className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors hover-elevate ${
-                          isActive
-                            ? "bg-primary/10 text-primary"
-                            : "text-muted-foreground"
-                        }`}
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Icon className="h-4 w-4" />
-                        {item.name}
-                      </a>
+                    <Link 
+                      key={item.name} 
+                      href={item.href}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors hover-elevate ${
+                        isActive
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground"
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {item.name}
                     </Link>
                   );
                 })}
