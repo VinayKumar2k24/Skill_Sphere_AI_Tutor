@@ -48,12 +48,24 @@ SkillPath is an AI-powered educational platform that provides personalized skill
     - **Simplified full-chat layout**: Removed recommendation cards to dedicate entire page to chat conversation
     - Fixed message display issue by replacing ScrollArea with standard scrollable div
     - Chat now takes full viewport height with cleaner, more focused interface
-  - **Course URL Fix (November 9, 2025)**:
-    - Fixed YouTube and other course links to redirect to specific courses instead of platform homepages
-    - Added domain-specific URLs for all 8 learning domains (Web Dev, ML, Data Science, Mobile, Cybersecurity, IoT, Space Tech, Hardware)
-    - Enhanced AI prompt to request specific direct URLs (YouTube: youtube.com/watch?v=ID format)
-    - Fallback courses now include real course links for popular tutorials on each platform
-    - Search query fallback for unmapped domains ensures users always get relevant results
+  - **Course URL Fix - Real Course Links (November 9, 2025)**:
+    - **Major Fix**: Course links now redirect to actual, specific course pages instead of platform homepages
+    - **AI Prompt Enhancement**: Explicit instructions with examples of valid vs invalid URLs
+      - ✅ Valid: `youtube.com/watch?v=VIDEO_ID`, `coursera.org/learn/course-name`
+      - ❌ Invalid: `youtube.com`, `coursera.org` (platform homepages)
+    - **URL Validation System**: Backend automatically filters out platform homepage URLs
+      - Only courses with specific paths (/watch?v=, /learn/, /course/) are accepted
+      - AI must provide at least 6 valid courses, otherwise fallback is used
+    - **Curated Fallback Courses**: Real, verified course URLs for all 8 domains
+      - Web Development: YouTube full course, freeCodeCamp responsive web design certification
+      - Machine Learning: Python ML course, Coursera ML specialization (Andrew Ng)
+      - Data Science: Data analysis tutorial, Johns Hopkins data science specialization
+      - Mobile Development: React Native full course, Android app development
+      - Cybersecurity: Complete cyber security course tutorials
+      - IoT: Introduction to IoT with real projects
+      - Space Technology: Aerospace engineering, space mission design
+      - Hardware: Electronics for beginners, computer building courses
+    - **Smart Search Fallback**: For unmapped domains, generates search URLs to find relevant courses
 
 ## User Preferences
 

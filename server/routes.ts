@@ -652,35 +652,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Generate course recommendations using AI
       try {
-        const prompt = `Recommend 9 high-quality courses for learning ${targetDomain} at ${skillLevel} level.
-        Include MOSTLY FREE options (at least 6 free courses), with a few premium paid options.
+        const prompt = `You are recommending REAL courses for learning ${targetDomain} at ${skillLevel} level.
         
-        For each course provide realistic information:
-        - title: Actual course name
-        - provider: Real platform (Coursera, freeCodeCamp, YouTube, Udemy, edX, Khan Academy, etc.)
-        - url: SPECIFIC DIRECT URL to the actual course (e.g., for YouTube use https://www.youtube.com/watch?v=VIDEO_ID, for Coursera use https://www.coursera.org/learn/course-name, for Udemy use https://www.udemy.com/course/course-name)
-        - isFree: true for free courses, false for paid
-        - price: 0 for free, realistic price for paid courses
+        CRITICAL: URLs MUST be SPECIFIC COURSE PAGES, NOT platform homepages!
+        
+        VALID URL examples:
+        ✅ YouTube: "https://www.youtube.com/watch?v=zJSY8tbf_ys" (specific video)
+        ✅ Coursera: "https://www.coursera.org/learn/machine-learning" (specific course)
+        ✅ Udemy: "https://www.udemy.com/course/react-the-complete-guide" (specific course)
+        ✅ freeCodeCamp: "https://www.freecodecamp.org/learn/responsive-web-design" (specific certification)
+        
+        INVALID URL examples (DO NOT USE):
+        ❌ "https://www.youtube.com" (homepage)
+        ❌ "https://www.coursera.org" (homepage)
+        ❌ "https://www.udemy.com" (homepage)
+        
+        Recommend 9 courses with AT LEAST 6 free options.
+        
+        For each course:
+        - id: unique identifier (e.g., "web-dev-yt-1")
+        - title: Real course name (e.g., "HTML CSS JavaScript Full Course 2024")
+        - provider: Platform name (YouTube, Coursera, freeCodeCamp, Udemy, edX, Khan Academy)
+        - url: MUST be a full course URL with /watch?v=, /learn/, /course/, or /certification/ path
+        - domain: "${targetDomain}"
+        - skillLevel: "${skillLevel}"
+        - price: number (0 for free)
         - rating: 4.0-5.0
-        - duration: Realistic duration (e.g., "4 weeks", "20 hours", "Self-paced")
-        - description: Brief but informative description (max 150 characters)
-        - skillLevel: ${skillLevel}
-        - domain: ${targetDomain}
+        - duration: realistic (e.g., "12 hours", "6 weeks", "Self-paced")
+        - description: under 150 characters
+        - isFree: true/false
         
-        Return ONLY valid JSON:
+        Return ONLY valid JSON with this exact structure:
         {
           "courses": [
             {
-              "id": "unique-id",
-              "title": "Course Title",
-              "provider": "Platform Name",
-              "url": "https://platform.com/course",
+              "id": "example-1",
+              "title": "Complete ${targetDomain} Course",
+              "provider": "YouTube",
+              "url": "https://www.youtube.com/watch?v=EXAMPLE_VIDEO_ID",
               "domain": "${targetDomain}",
               "skillLevel": "${skillLevel}",
               "price": 0,
-              "rating": 4.5,
-              "duration": "4 weeks",
-              "description": "Brief description",
+              "rating": 4.8,
+              "duration": "10 hours",
+              "description": "Comprehensive tutorial covering all fundamentals",
               "isFree": true
             }
           ]
@@ -689,15 +704,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const completion = await openai.chat.completions.create({
           model: "gpt-4o-mini",
           messages: [
-            { role: "system", content: "You are a learning path expert. Recommend real, high-quality courses from reputable platforms with specific direct URLs. For YouTube, use actual video links (youtube.com/watch?v=ID). For other platforms, use full course URLs. Emphasize free courses." },
+            { 
+              role: "system", 
+              content: "You recommend REAL courses from platforms like YouTube, Coursera, Udemy, freeCodeCamp with SPECIFIC course URLs. NEVER use platform homepages like youtube.com or coursera.org - always include the full path to the actual course (/watch?v=, /learn/, /course/). You have knowledge of real popular courses and their actual URLs." 
+            },
             { role: "user", content: prompt }
           ],
           response_format: { type: "json_object" },
-          temperature: 0.8,
+          temperature: 0.7,
         });
 
         const data = JSON.parse(completion.choices[0].message.content || "{}");
-        res.json({ courses: data.courses || [] });
+        
+        // Validate and filter out invalid URLs (platform homepages)
+        const validCourses = (data.courses || []).filter((course: any) => {
+          const url = course.url || '';
+          const isValid = 
+            (url.includes('youtube.com/watch?v=') && url.length > 'https://www.youtube.com/watch?v='.length) ||
+            (url.includes('coursera.org/learn/') && url.length > 'https://www.coursera.org/learn/'.length) ||
+            (url.includes('coursera.org/specializations/') && url.length > 'https://www.coursera.org/specializations/'.length) ||
+            (url.includes('udemy.com/course/') && url.length > 'https://www.udemy.com/course/'.length) ||
+            (url.includes('freecodecamp.org/learn/') && url.length > 'https://www.freecodecamp.org/learn/'.length) ||
+            (url.includes('freecodecamp.org/news/') && url.length > 'https://www.freecodecamp.org/news/'.length) ||
+            (url.includes('edx.org/learn/') && url.length > 'https://www.edx.org/learn/'.length) ||
+            (url.includes('khanacademy.org/') && !url.endsWith('khanacademy.org') && !url.endsWith('khanacademy.org/'));
+          
+          if (!isValid) {
+            console.log(`Filtered out invalid course URL: ${course.title} - ${url}`);
+          }
+          return isValid;
+        });
+        
+        // If AI provided valid courses, use them; otherwise fall through to fallback
+        if (validCourses.length >= 6) {
+          res.json({ courses: validCourses });
+        } else {
+          console.log(`AI provided only ${validCourses.length} valid courses, using fallback`);
+          throw new Error('Insufficient valid courses from AI');
+        }
       } catch (aiError) {
         console.error("AI course recommendation failed, using fallback:", aiError);
         // Fallback recommendations with realistic URLs based on domain
