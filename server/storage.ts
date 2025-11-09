@@ -88,7 +88,21 @@ export class DbStorage implements IStorage {
   }
 
   async getUserSkillLevels(userId: string): Promise<DomainSkillLevel[]> {
-    return await db.select().from(domainSkillLevels).where(eq(domainSkillLevels.userId, userId));
+    // Get all skill levels ordered by most recent first
+    const allLevels = await db.select()
+      .from(domainSkillLevels)
+      .where(eq(domainSkillLevels.userId, userId))
+      .orderBy(desc(domainSkillLevels.determinedAt));
+    
+    // Return only the most recent skill level for each domain
+    const latestByDomain = new Map<string, DomainSkillLevel>();
+    for (const level of allLevels) {
+      if (!latestByDomain.has(level.domain)) {
+        latestByDomain.set(level.domain, level);
+      }
+    }
+    
+    return Array.from(latestByDomain.values());
   }
 
   // Quiz attempts

@@ -803,10 +803,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
           udemy: "https://www.udemy.com/courses/search/?q=" + encodeURIComponent(targetDomain)
         };
 
+        // Create skill-level appropriate course titles
+        const skillTitles: Record<string, { intro: string, main: string, comprehensive: string, advanced: string }> = {
+          'Beginner': {
+            intro: `Introduction to ${targetDomain}`,
+            main: `${targetDomain} Fundamentals`,
+            comprehensive: `Complete ${targetDomain} Guide for Beginners`,
+            advanced: `${targetDomain} Bootcamp`
+          },
+          'Intermediate': {
+            intro: `Intermediate ${targetDomain}`,
+            main: `Building Projects with ${targetDomain}`,
+            comprehensive: `Complete ${targetDomain} Course`,
+            advanced: `Practical ${targetDomain} Development`
+          },
+          'Advanced': {
+            intro: `Advanced ${targetDomain}`,
+            main: `Mastering ${targetDomain}`,
+            comprehensive: `Professional ${targetDomain} Development`,
+            advanced: `${targetDomain} Masterclass`
+          }
+        };
+        
+        const titles = skillTitles[skillLevel] || skillTitles['Beginner'];
+        
         const fallbackCourses = [
           {
             id: `${targetDomain}-free-1`,
-            title: `Introduction to ${targetDomain}`,
+            title: titles.intro,
             provider: "freeCodeCamp",
             url: urls.freecodecamp,
             domain: targetDomain,
@@ -819,7 +843,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           {
             id: `${targetDomain}-free-2`,
-            title: `${targetDomain} Crash Course`,
+            title: titles.main,
             provider: "YouTube",
             url: urls.youtube,
             domain: targetDomain,
@@ -827,12 +851,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             price: 0,
             rating: 4.7,
             duration: "3-5 hours",
-            description: `Quick introduction to ${targetDomain} concepts`,
+            description: `${skillLevel} level introduction to ${targetDomain} concepts`,
             isFree: true
           },
           {
             id: `${targetDomain}-free-3`,
-            title: `Complete ${targetDomain} Guide`,
+            title: titles.comprehensive,
             provider: "Coursera",
             url: urls.coursera,
             domain: targetDomain,
@@ -845,7 +869,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           {
             id: `${targetDomain}-paid-1`,
-            title: `Advanced ${targetDomain} Masterclass`,
+            title: titles.advanced,
             provider: "Udemy",
             url: urls.udemy,
             domain: targetDomain,
@@ -853,7 +877,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             price: 49.99,
             rating: 4.9,
             duration: "20 hours",
-            description: `Deep dive into ${targetDomain} with real-world projects`,
+            description: `Deep dive into ${targetDomain} with real-world projects at ${skillLevel} level`,
             isFree: false
           }
         ];

@@ -32,10 +32,15 @@ export default function MentorPage() {
 
   const chatMutation = useMutation({
     mutationFn: async (userMessage: string) => {
+      // Send conversation history but exclude the initial welcome message
+      const conversationHistory = messages
+        .slice(1) // Skip the first welcome message
+        .map(m => ({ role: m.role, content: m.content }));
+      
       const res = await apiRequest('POST', '/api/chat', {
         userId,
         message: userMessage,
-        conversationHistory: messages.map(m => ({ role: m.role, content: m.content }))
+        conversationHistory
       });
       
       if (!res.ok) {
