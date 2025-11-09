@@ -48,6 +48,17 @@ SkillPath is an AI-powered educational platform that provides personalized skill
     - **Simplified full-chat layout**: Removed recommendation cards to dedicate entire page to chat conversation
     - Fixed message display issue by replacing ScrollArea with standard scrollable div
     - Chat now takes full viewport height with cleaner, more focused interface
+    - **Fixed Repeated Responses Bug**: Excluded initial welcome message from conversation history sent to OpenAI, ensuring unique contextual responses to different questions
+  - **Course Recommendation System Fixes (November 9, 2025)**:
+    - **Latest Assessment Skill Levels**: Fixed `getUserSkillLevels()` to order by `determinedAt DESC` and return only the most recent skill level per domain
+      - After retaking a quiz and achieving Intermediate level, courses now correctly show Intermediate recommendations instead of old Beginner results
+      - Database query ensures latest assessment drives course recommendations
+      - Eliminated stale skill level data from impacting user experience
+    - **Skill-Level Appropriate Titles**: Fixed fallback course titles to match user's assessed skill level
+      - Beginner courses: "Introduction to...", "...Fundamentals", "Guide for Beginners"
+      - Intermediate courses: "Intermediate...", "Building Projects with...", "Practical..."
+      - Advanced courses: "Advanced...", "Mastering...", "Professional..."
+      - No more confusing "Advanced Masterclass" titles for Beginner users
   - **Course URL Fix - Real Course Links (November 9, 2025)**:
     - **Major Fix**: Course links now redirect to actual, specific course pages instead of platform homepages
     - **AI Prompt Enhancement**: Explicit instructions with examples of valid vs invalid URLs
